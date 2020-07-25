@@ -1,14 +1,17 @@
 package engine
 
+import engine.controller.Keyboard
 import java.awt.Canvas
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.Toolkit
+import java.awt.event.WindowEvent
+import java.awt.event.WindowFocusListener
 import java.awt.image.BufferStrategy
 import javax.swing.JFrame
 import javax.swing.JFrame.EXIT_ON_CLOSE
 
-class Display : Canvas(), Runnable {
+class Display : Canvas(), Runnable, WindowFocusListener {
     companion object {
         var Width: Int = Toolkit.getDefaultToolkit().screenSize.width
         var Height: Int = Toolkit.getDefaultToolkit().screenSize.height
@@ -28,6 +31,9 @@ class Display : Canvas(), Runnable {
     private var frame: JFrame = JFrame()
     private lateinit var thread: Thread
 
+    /**
+     *
+     */
     init {
         setSize(Width, Height)
         loadDefaultJFrame()
@@ -37,11 +43,14 @@ class Display : Canvas(), Runnable {
      *
      */
     private fun loadDefaultJFrame() {
-//        frame.isUndecorated = true
+        frame.setSize(Width, Height)
+        frame.isUndecorated = true
         frame.isVisible = true
         frame.defaultCloseOperation = EXIT_ON_CLOSE
         frame.add(this)
         frame.pack()
+        frame.setLocationRelativeTo(null)
+        frame.addWindowFocusListener(this)
     }
 
     /**
@@ -123,4 +132,16 @@ class Display : Canvas(), Runnable {
         running = false
         thread.join()
     }
+
+    /**
+     *
+     */
+    override fun windowLostFocus(e: WindowEvent?) {
+        Keyboard.codes.forEachIndexed { index, code -> if(code==1) Keyboard.codes[index]=0 }
+    }
+
+    /**
+     *
+     */
+    override fun windowGainedFocus(e: WindowEvent?) {}
 }
